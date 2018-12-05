@@ -1,7 +1,9 @@
 module Main exposing (main)
 
 import Browser
-import Html exposing (Html, p, text)
+import Html exposing (..)
+import Html.Attributes exposing (..)
+import Html.Events exposing (onClick, onInput)
 
 
 main =
@@ -17,13 +19,17 @@ main =
 -- MODEL
 
 
+type alias Images =
+    { logo : String }
+
+
 type alias Model =
-    {}
+    { images : Images, content : String }
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
-    ( {}, Cmd.none )
+init : Images -> ( Model, Cmd Msg )
+init images =
+    ( { images = images, content = "" }, Cmd.none )
 
 
 
@@ -31,13 +37,18 @@ init _ =
 
 
 type Msg
-    = Something
-    | Other
+    = Change String
+    | Search
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( model, Cmd.none )
+    case msg of
+        Change newContent ->
+            ( { model | content = newContent }, Cmd.none )
+
+        Search ->
+            ( model, Cmd.none )
 
 
 
@@ -54,5 +65,20 @@ subscriptions _ =
 
 
 view : Model -> Html Msg
-view _ =
-    p [] [ text "Hello world!" ]
+view model =
+    div [ class "py2" ]
+        [ div [ class "txt--center" ]
+            [ img [ class "jedi-logo", src model.images.logo ] []
+            , p [ class "muted" ] [ text "Welcome to the holocron" ]
+            ]
+        , div [ class "measure my2" ]
+            [ input
+                [ class "search"
+                , placeholder "What do you seek?"
+                , value model.content
+                , onInput Change
+                ]
+                []
+            , button [ onClick Search ] [ text "Search" ]
+            ]
+        ]
