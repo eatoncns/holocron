@@ -1,5 +1,5 @@
 import './assets/styles/main.scss';
-import logo from './assets/images/jedi_logo.png';
+import logo from './assets/images/jedi_logo_blue.jpg';
 
 if (module.hot) {
     module.hot.dispose(() => {

@@ -1,1 +1,22 @@
-@import "node_modules/furtive/scss/all.scss";
+@import 'node_modules/furtive/scss/all';
+
+.search {
+  margin: 0 auto;
+  max-width: 30rem;
+
+  .btn {
+    line-height: normal;
+    padding: .6rem;
+  }
+}
+
+$card-shadow: rgba(0, 0, 0, .2);
+
+.card {
+  box-shadow: 0 2px 4px 0 $card-shadow;
+  transition: .3s;
+}
+
+.card:hover {
+  box-shadow: 0 8px 16px 0 $card-shadow;
+}
