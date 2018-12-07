@@ -3,9 +3,9 @@ module Main exposing (main)
 import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onClick, onInput)
+import Html.Events exposing (keyCode, on, onClick, onInput)
 import Http
-import Json.Decode exposing (Decoder, field, list, map2, string)
+import Json.Decode exposing (Decoder, field, list, map, map2, string)
 
 
 main =
@@ -52,6 +52,16 @@ type Msg
     = SearchTextChange String
     | Search
     | SearchResult (Result Http.Error People)
+    | SearchKeyDown Int
+
+
+onKeyDown : (Int -> msg) -> Attribute msg
+onKeyDown tagger =
+    on "keydown" (map tagger keyCode)
+
+
+enterKey =
+    13
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -59,6 +69,13 @@ update msg model =
     case msg of
         SearchTextChange newSearchText ->
             ( { model | searchText = newSearchText }, Cmd.none )
+
+        SearchKeyDown key ->
+            if key == enterKey then
+                ( model, searchPerson model.searchText )
+
+            else
+                ( model, Cmd.none )
 
         Search ->
             ( model, searchPerson model.searchText )
@@ -115,6 +132,7 @@ searchBar model =
                         , placeholder "What do you seek?"
                         , value model.searchText
                         , onInput SearchTextChange
+                        , onKeyDown SearchKeyDown
                         ]
                         []
                     ]
