@@ -1,11 +1,12 @@
 module Main exposing (main)
 
 import Browser
-import Html exposing (..)
-import Html.Attributes exposing (..)
+import Html exposing (Attribute, Html, button, div, img, input, p, text)
+import Html.Attributes exposing (class, placeholder, src, value)
 import Html.Events exposing (keyCode, on, onClick, onInput)
 import Http
-import Json.Decode exposing (Decoder, field, list, map, map2, string)
+import Json.Decode exposing (map)
+import People exposing (People, PersonPreview)
 import Process
 import Task exposing (Task)
 
@@ -21,16 +22,6 @@ main =
 
 
 -- MODEL
-
-
-type alias People =
-    List Person
-
-
-type alias Person =
-    { url : String
-    , name : String
-    }
 
 
 type alias Images =
@@ -88,7 +79,7 @@ update msg model =
 
         SearchKeyDown key ->
             if key == enterKey then
-                ( model, searchPerson model.searchText )
+                ( model, People.search model.searchText SearchResult )
 
             else
                 ( model, Cmd.none )
@@ -96,8 +87,9 @@ update msg model =
         Search ->
             ( { model | search = Loading }
             , Cmd.batch
-                [ searchPerson
+                [ People.search
                     model.searchText
+                    SearchResult
                 , Task.perform (\_ -> PassedSlowLoadingThreshold)
                     slowLoadThreshold
                 ]
@@ -230,45 +222,8 @@ slowLoadMessage =
     "Searching my memory..."
 
 
-personResult : Person -> Html Msg
+personResult : PersonPreview -> Html Msg
 personResult person =
     div [ class "card txt--center" ]
         [ p [] [ text person.name ]
         ]
-
-
-
--- HTTP
-
-
-searchPerson : String -> Cmd Msg
-searchPerson input =
-    Http.get
-        { url = "https://swapi.co/api/people/?search=" ++ input
-        , expect = Http.expectJson SearchResult searchResultDecoder
-        }
-
-
-searchResultDecoder : Decoder People
-searchResultDecoder =
-    field "results" peopleDecoder
-
-
-peopleDecoder : Decoder People
-peopleDecoder =
-    list personDecoder
-
-
-personDecoder : Decoder Person
-personDecoder =
-    map2 Person urlDecoder nameDecoder
-
-
-urlDecoder : Decoder String
-urlDecoder =
-    field "url" string
-
-
-nameDecoder : Decoder String
-nameDecoder =
-    field "name" string
