@@ -3,7 +3,8 @@ Star Wars Holocron
 
 A simple frontend for the [SWAPI (the Star Wars API)](https://swapi.co/)
 
-The app is written in [Elm](https://elm-lang.org/), tested using
+The app is written in [Elm](https://elm-lang.org/), styled with use of
+[Furtive] (http://furtive.co/, )tested using
 [cypress](https://www.cypress.io/) and bundled using
 [parceljs](https://parceljs.org/).
 
@@ -39,3 +40,9 @@ describing the interaction a user has rather than the underlying
 implementation. With selenium/webdriver I have seen this fall down due to the
 slow speed and flakiness of the tests but there are a number of features in
 cypress to address this.
+
+## Enhancements
+
+Some considerations going forward if this were a production project:
+
+- [Localisation](https://developer.mozilla.org/en-US/docs/Mozilla/Localization/Web_Localizability/Creating_localizable_web_applications)
