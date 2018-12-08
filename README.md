@@ -19,6 +19,7 @@ The app is written in [Elm](https://elm-lang.org/), tested using
 yarn install            # install dependencies
 yarn run dev            # run app locally (default localhost:1234)
 yarn run cypress:open   # open cypress test GUI
+yarn run cypress        # run cypress tests from command line
 ```
 
 ## Goals
