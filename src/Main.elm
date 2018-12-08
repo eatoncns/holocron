@@ -1,13 +1,149 @@
 module Main exposing (main)
 
-import Browser
+import Browser exposing (Document)
+import Browser.Navigation as Nav
+import Context exposing (Context, Images)
+import Html exposing (Html)
+import Page.NotFound as NotFound
 import Page.Search as Search
+import Route exposing (Route)
+import Url
 
 
+
+-- MODEL
+
+
+type Model
+    = NotFound Context
+    | SearchPage Search.Model
+
+
+init : Images -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
+init images url key =
+    changeRouteTo (Route.fromUrl url) (NotFound (Context images key))
+
+
+
+-- UPDATE
+
+
+type Msg
+    = Ignored
+    | LinkClicked Browser.UrlRequest
+    | UrlChanged Url.Url
+    | SearchMsg Search.Msg
+
+
+changeRouteTo : Maybe Route -> Model -> ( Model, Cmd Msg )
+changeRouteTo maybeRoute model =
+    let
+        context =
+            getContext model
+    in
+    case maybeRoute of
+        Nothing ->
+            ( NotFound context, Cmd.none )
+
+        Just Route.Search ->
+            wrapPage SearchPage SearchMsg (Search.init context)
+
+
+getContext : Model -> Context
+getContext model =
+    case model of
+        NotFound context ->
+            context
+
+        SearchPage searchPage ->
+            Search.getContext searchPage
+
+
+wrapPage : (subModel -> Model) -> (subMsg -> Msg) -> ( subModel, Cmd subMsg ) -> ( Model, Cmd Msg )
+wrapPage toModel toMsg ( subModel, subCmd ) =
+    ( toModel subModel, Cmd.map toMsg subCmd )
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case ( msg, model ) of
+        ( Ignored, _ ) ->
+            ( model, Cmd.none )
+
+        ( LinkClicked urlRequest, _ ) ->
+            handleLinkClick urlRequest model
+
+        ( UrlChanged url, _ ) ->
+            changeRouteTo (Route.fromUrl url) model
+
+        ( SearchMsg subMsg, SearchPage searchModel ) ->
+            Search.update subMsg searchModel
+                |> wrapPage SearchPage SearchMsg
+
+        ( _, _ ) ->
+            ( model, Cmd.none )
+
+
+handleLinkClick : Browser.UrlRequest -> Model -> ( Model, Cmd Msg )
+handleLinkClick urlRequest model =
+    let
+        context =
+            getContext model
+    in
+    case urlRequest of
+        Browser.Internal url ->
+            case url.fragment of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just _ ->
+                    ( model, Nav.pushUrl context.key (Url.toString url) )
+
+        Browser.External href ->
+            ( model, Nav.load href )
+
+
+
+-- VIEW
+
+
+view : Model -> Document Msg
+view model =
+    { title = "Star Wars Holocron"
+    , body = [ viewPage model ]
+    }
+
+
+viewPage : Model -> Html Msg
+viewPage model =
+    case model of
+        NotFound _ ->
+            Html.map (\_ -> Ignored) NotFound.view
+
+        SearchPage searchModel ->
+            Html.map SearchMsg (Search.view searchModel)
+
+
+
+-- SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions _ =
+    Sub.none
+
+
+
+-- MAIN
+
+
+main : Program Images Model Msg
 main =
-    Browser.element
-        { init = Search.init
-        , update = Search.update
-        , view = Search.view
-        , subscriptions = Search.subscriptions
+    Browser.application
+        { init = init
+        , update = update
+        , view = view
+        , subscriptions = subscriptions
+        , onUrlChange = UrlChanged
+        , onUrlRequest = LinkClicked
         }

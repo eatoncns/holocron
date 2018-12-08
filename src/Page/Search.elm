@@ -1,5 +1,6 @@
-module Page.Search exposing (init, subscriptions, update, view)
+module Page.Search exposing (Model, Msg, getContext, init, update, view)
 
+import Context exposing (Context)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -14,10 +15,6 @@ import Task exposing (Task)
 -- MODEL
 
 
-type alias Images =
-    { logo : String }
-
-
 type Search
     = NotPerformedYet
     | Loading
@@ -27,12 +24,17 @@ type Search
 
 
 type alias Model =
-    { images : Images, searchText : String, search : Search }
+    { context : Context, searchText : String, search : Search }
 
 
-init : Images -> ( Model, Cmd Msg )
-init images =
-    ( { images = images, searchText = "", search = NotPerformedYet }, Cmd.none )
+init : Context -> ( Model, Cmd Msg )
+init context =
+    ( { context = context, searchText = "", search = NotPerformedYet }, Cmd.none )
+
+
+getContext : Model -> Context
+getContext model =
+    model.context
 
 
 
@@ -103,15 +105,6 @@ update msg model =
 
 
 
--- SUBSCRIPTIONS
-
-
-subscriptions : Model -> Sub Msg
-subscriptions _ =
-    Sub.none
-
-
-
 -- VIEW
 
 
@@ -129,7 +122,7 @@ view model =
 header : Model -> Html Msg
 header model =
     div [ class "txt--center" ]
-        [ img [ class "jedi-logo", src model.images.logo ] []
+        [ img [ class "jedi-logo", src model.context.images.logo ] []
         , p [ class "muted" ] [ text "Welcome to the holocron" ]
         ]
 
