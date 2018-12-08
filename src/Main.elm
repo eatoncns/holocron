@@ -135,7 +135,7 @@ searchBar model =
                 [ div [ class "grd-row-col-5-6" ]
                     [ input
                         [ class "search"
-                        , placeholder "What do you seek?"
+                        , placeholder "Who do you seek?"
                         , value model.searchText
                         , onInput SearchTextChange
                         , onKeyDown SearchKeyDown
@@ -175,9 +175,14 @@ searchResults model =
 
 resultText : People -> String
 resultText people =
-    "I know of "
-        ++ (people |> List.length |> String.fromInt)
-        ++ "..."
+    case List.length people of
+        0 ->
+            "I do not know anyone by that name"
+
+        _ ->
+            "I know of "
+                ++ (people |> List.length |> String.fromInt)
+                ++ "..."
 
 
 errorText : String

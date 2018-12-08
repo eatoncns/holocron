@@ -23,12 +23,38 @@ describe('The search page', function() {
 
     cy.wait('@searchDarth');
 
+    cy.contains('I know of 2...').should('be.visible');
     cy.contains('Darth Vader').should('be.visible');
     cy.contains('Darth Maul').should('be.visible');
   });
 
+  it('allows search to be triggered by pressing enter', () => {
+    cy.get('input.search')
+      .type('Darth{enter}')
+
+    cy.wait('@searchDarth');
+  });
+
+  describe('when no people are found', function() {
+    beforeEach(function() {
+      cy.route('https://swapi.co/api/people/?search=Something', 'fixture:empty_search.json')
+        .as('emptySearch');
+    })
+
+    it('displays message', function() {
+      cy.get('input.search')
+        .type('Something');
+
+      cy.get('button').click();
+
+      cy.wait('@emptySearch');
+
+      cy.contains('I do not know anyone by that name');
+    })
+  });
+
   describe('when api is down', function() {
-    beforeEach(function () {
+    beforeEach(function() {
       cy.route({
         url: 'https://swapi.co/api/people/?search=Blah',
         method: 'GET',
