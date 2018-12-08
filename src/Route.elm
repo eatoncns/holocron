@@ -1,11 +1,12 @@
 module Route exposing (Route(..), fromUrl)
 
 import Url exposing (Url)
-import Url.Parser as Parser exposing (Parser, oneOf)
+import Url.Parser as Parser exposing (Parser, oneOf, s)
 
 
 type Route
-    = Search
+    = NotFound
+    | Search
 
 
 parser : Parser (Route -> a) a
@@ -15,7 +16,11 @@ parser =
         ]
 
 
-fromUrl : Url -> Maybe Route
+fromUrl : Url -> Route
 fromUrl url =
-    { url | path = Maybe.withDefault "" url.fragment, fragment = Nothing }
-        |> Parser.parse parser
+    case Parser.parse parser url of
+        Just route ->
+            route
+
+        Nothing ->
+            NotFound

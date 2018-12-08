@@ -35,17 +35,17 @@ type Msg
     | SearchMsg Search.Msg
 
 
-changeRouteTo : Maybe Route -> Model -> ( Model, Cmd Msg )
-changeRouteTo maybeRoute model =
+changeRouteTo : Route -> Model -> ( Model, Cmd Msg )
+changeRouteTo route model =
     let
         context =
             getContext model
     in
-    case maybeRoute of
-        Nothing ->
+    case route of
+        Route.NotFound ->
             ( NotFound context, Cmd.none )
 
-        Just Route.Search ->
+        Route.Search ->
             wrapPage SearchPage SearchMsg (Search.init context)
 
 
