@@ -49,7 +49,7 @@ describe('The search page', function() {
 
       cy.wait('@emptySearch');
 
-      cy.contains('I do not know anyone by that name');
+      cy.contains('I do not know anyone by that name').should('be.visible');
     })
   });
 
@@ -71,7 +71,33 @@ describe('The search page', function() {
 
       cy.wait('@searchError');
 
-      cy.contains('There is a disturbance in the force... SWAPI is not responding');
+      cy.contains('There is a disturbance in the force... SWAPI is not responding')
+        .should('be.visible');
+    });
+  });
+
+  describe('when network is slow', function() {
+    beforeEach(function() {
+      cy.route({
+        delay: 2000,
+        url:'https://swapi.co/api/people/?search=darth',
+        method: 'GET',
+        status: 200,
+        response: 'fixture:darth_search.json',
+      }).as('slowSearch');
+    });
+
+    it('displays loading message until loaded', () => {
+      cy.get('input.search')
+        .type('darth');
+
+      cy.get('button').click();
+
+      cy.contains('Searching my memory...').should('be.visible');
+
+      cy.wait('@slowSearch');
+
+      cy.contains('Searching my memory...').should('not.be.visible');
     });
   });
 });

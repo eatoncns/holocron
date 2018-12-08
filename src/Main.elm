@@ -6,6 +6,8 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (keyCode, on, onClick, onInput)
 import Http
 import Json.Decode exposing (Decoder, field, list, map, map2, string)
+import Process
+import Task exposing (Task)
 
 
 main =
@@ -37,8 +39,10 @@ type alias Images =
 
 type Search
     = NotPerformedYet
-    | Error
+    | Loading
+    | LoadingSlowly
     | Result People
+    | Error
 
 
 type alias Model =
@@ -59,6 +63,12 @@ type Msg
     | Search
     | SearchResult (Result Http.Error People)
     | SearchKeyDown Int
+    | PassedSlowLoadingThreshold
+
+
+slowLoadThreshold : Task x ()
+slowLoadThreshold =
+    Process.sleep 500
 
 
 onKeyDown : (Int -> msg) -> Attribute msg
@@ -84,7 +94,14 @@ update msg model =
                 ( model, Cmd.none )
 
         Search ->
-            ( model, searchPerson model.searchText )
+            ( { model | search = Loading }
+            , Cmd.batch
+                [ searchPerson
+                    model.searchText
+                , Task.perform (\_ -> PassedSlowLoadingThreshold)
+                    slowLoadThreshold
+                ]
+            )
 
         SearchResult result ->
             case result of
@@ -93,6 +110,14 @@ update msg model =
 
                 Err _ ->
                     ( { model | search = Error }, Cmd.none )
+
+        PassedSlowLoadingThreshold ->
+            case model.search of
+                Loading ->
+                    ( { model | search = LoadingSlowly }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
 
 
 
@@ -156,7 +181,7 @@ searchResults model =
         Result people ->
             div [ class "my2" ]
                 ([ p [ class "muted" ]
-                    [ text (resultText people)
+                    [ text (resultMessage people)
                     ]
                  ]
                     ++ List.map personResult people
@@ -165,16 +190,26 @@ searchResults model =
         Error ->
             div [ class "my2" ]
                 [ p [ class "muted" ]
-                    [ text errorText
+                    [ text errorMessage
                     ]
                 ]
+
+        LoadingSlowly ->
+            div [ class "my2" ]
+                [ p [ class "muted" ]
+                    [ text slowLoadMessage
+                    ]
+                ]
+
+        Loading ->
+            text ""
 
         NotPerformedYet ->
             text ""
 
 
-resultText : People -> String
-resultText people =
+resultMessage : People -> String
+resultMessage people =
     case List.length people of
         0 ->
             "I do not know anyone by that name"
@@ -185,9 +220,14 @@ resultText people =
                 ++ "..."
 
 
-errorText : String
-errorText =
+errorMessage : String
+errorMessage =
     "There is a disturbance in the force... SWAPI is not responding"
+
+
+slowLoadMessage : String
+slowLoadMessage =
+    "Searching my memory..."
 
 
 personResult : Person -> Html Msg
