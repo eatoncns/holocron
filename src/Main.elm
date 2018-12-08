@@ -35,13 +35,19 @@ type alias Images =
     { logo : String }
 
 
+type Search
+    = NotPerformedYet
+    | Error
+    | Result People
+
+
 type alias Model =
-    { images : Images, searchText : String, people : Maybe People }
+    { images : Images, searchText : String, search : Search }
 
 
 init : Images -> ( Model, Cmd Msg )
 init images =
-    ( { images = images, searchText = "", people = Nothing }, Cmd.none )
+    ( { images = images, searchText = "", search = NotPerformedYet }, Cmd.none )
 
 
 
@@ -83,10 +89,10 @@ update msg model =
         SearchResult result ->
             case result of
                 Ok people ->
-                    ( { model | people = Just people }, Cmd.none )
+                    ( { model | search = Result people }, Cmd.none )
 
                 Err _ ->
-                    ( model, Cmd.none )
+                    ( { model | search = Error }, Cmd.none )
 
 
 
@@ -146,29 +152,41 @@ searchBar model =
 
 searchResults : Model -> Html Msg
 searchResults model =
-    case model.people of
-        Just people ->
+    case model.search of
+        Result people ->
             div [ class "my2" ]
                 ([ p [ class "muted" ]
-                    [ text (renderResultText people)
+                    [ text (resultText people)
                     ]
                  ]
-                    ++ List.map renderPersonResult people
+                    ++ List.map personResult people
                 )
 
-        Nothing ->
+        Error ->
+            div [ class "my2" ]
+                [ p [ class "muted" ]
+                    [ text errorText
+                    ]
+                ]
+
+        NotPerformedYet ->
             text ""
 
 
-renderResultText : People -> String
-renderResultText people =
+resultText : People -> String
+resultText people =
     "I know of "
         ++ (people |> List.length |> String.fromInt)
         ++ "..."
 
 
-renderPersonResult : Person -> Html Msg
-renderPersonResult person =
+errorText : String
+errorText =
+    "There is a disturbance in the force... SWAPI is not responding"
+
+
+personResult : Person -> Html Msg
+personResult person =
     div [ class "card txt--center" ]
         [ p [] [ text person.name ]
         ]
