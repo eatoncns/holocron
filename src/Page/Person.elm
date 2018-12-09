@@ -14,6 +14,7 @@ import Person exposing (Person)
 type Status
     = Loading
     | Loaded Person
+    | Error
 
 
 type alias Model =
@@ -47,7 +48,7 @@ update msg model =
                     ( { model | status = Loaded person }, Cmd.none )
 
                 Err _ ->
-                    ( model, Cmd.none )
+                    ( { model | status = Error }, Cmd.none )
 
 
 
@@ -59,6 +60,9 @@ view model =
     case model.status of
         Loading ->
             text ""
+
+        Error ->
+            div [ class "txt--center my2" ] [ text errorMessage ]
 
         Loaded person ->
             div [ class "measure bg--off-white" ]
@@ -108,3 +112,8 @@ attribute a =
         [ div [ class "muted" ] [ text a.label ]
         , div [] [ text a.value ]
         ]
+
+
+errorMessage : String
+errorMessage =
+    "There is a disturbance in the force... SWAPI is not responding"

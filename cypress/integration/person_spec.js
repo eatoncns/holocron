@@ -18,4 +18,23 @@ describe('The person page', function() {
     cy.contains('.attribute', 'Gender').children().last().should('have.text', 'male');
   });
 
+  describe('when api is down', function() {
+    beforeEach(function() {
+      cy.route({
+        url: 'https://swapi.co/api/people/5/',
+        method: 'GET',
+        status: 500,
+        response: {}
+      }).as('apiError');
+      cy.visit('/person/5')
+    });
+
+    it('displays error message', function() {
+      cy.wait('@apiError');
+
+      cy.contains('There is a disturbance in the force... SWAPI is not responding')
+        .should('be.visible');
+    });
+  });
+
 });

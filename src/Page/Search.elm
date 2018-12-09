@@ -155,32 +155,24 @@ searchResults model =
     case model.search of
         Result people ->
             div [ class "my2" ]
-                ([ p [ class "muted" ]
-                    [ text (resultMessage people)
-                    ]
-                 ]
-                    ++ List.map personResult people
-                )
+                ([ resultText (resultMessage people) ] ++ List.map personResult people)
 
         Error ->
-            div [ class "my2" ]
-                [ p [ class "muted" ]
-                    [ text errorMessage
-                    ]
-                ]
+            div [ class "my2" ] [ resultText errorMessage ]
 
         LoadingSlowly ->
-            div [ class "my2" ]
-                [ p [ class "muted" ]
-                    [ text slowLoadMessage
-                    ]
-                ]
+            div [ class "my2" ] [ resultText slowLoadMessage ]
 
         Loading ->
             text ""
 
         NotPerformedYet ->
             text ""
+
+
+resultText : String -> Html msg
+resultText output =
+    p [ class "muted" ] [ text output ]
 
 
 resultMessage : People -> String
