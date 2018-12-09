@@ -74,7 +74,7 @@ describe('The search page', function() {
 
       cy.wait('@searchError');
 
-      cy.contains('There is a disturbance in the force... SWAPI is not responding')
+      cy.contains('There is a disturbance in the force... error from SWAPI')
         .should('be.visible');
     });
   });

@@ -4,6 +4,7 @@ import Context exposing (Context)
 import Html exposing (..)
 import Html.Attributes exposing (class)
 import Http
+import Message
 import Person exposing (Person)
 import Process
 import Task exposing (Task)
@@ -88,13 +89,13 @@ view model =
             text ""
 
         Error ->
-            div [ class "txt--center my2" ] [ text errorMessage ]
+            div [ class "txt--center my2" ] [ text Message.error ]
 
         NotFound ->
-            div [ class "txt--center my2" ] [ text notFoundMessage ]
+            div [ class "txt--center my2" ] [ text Message.notFound ]
 
         LoadingSlowly ->
-            div [ class "txt--center my2" ] [ text slowLoadMessage ]
+            div [ class "txt--center my2" ] [ text Message.slowLoad ]
 
         Loaded person ->
             div [ class "measure bg--off-white" ]
@@ -144,18 +145,3 @@ attribute a =
         [ div [ class "muted" ] [ text a.label ]
         , div [] [ text a.value ]
         ]
-
-
-errorMessage : String
-errorMessage =
-    "There is a disturbance in the force... SWAPI is not responding"
-
-
-slowLoadMessage : String
-slowLoadMessage =
-    "Searching my memory..."
-
-
-notFoundMessage : String
-notFoundMessage =
-    "I cannot recall that person"

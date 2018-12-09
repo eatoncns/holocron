@@ -6,6 +6,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
 import Json.Decode as D
+import Message
 import People exposing (People, PersonPreview)
 import Process
 import Task exposing (Task)
@@ -155,10 +156,10 @@ searchResults model =
                 ([ resultText (resultMessage people) ] ++ List.map personResult people)
 
         Error ->
-            div [ class "my2" ] [ resultText errorMessage ]
+            div [ class "my2" ] [ resultText Message.error ]
 
         LoadingSlowly ->
-            div [ class "my2" ] [ resultText slowLoadMessage ]
+            div [ class "my2" ] [ resultText Message.slowLoad ]
 
         Loading ->
             text ""
@@ -182,16 +183,6 @@ resultMessage people =
             "I know of "
                 ++ (people |> List.length |> String.fromInt)
                 ++ "..."
-
-
-errorMessage : String
-errorMessage =
-    "There is a disturbance in the force... SWAPI is not responding"
-
-
-slowLoadMessage : String
-slowLoadMessage =
-    "Searching my memory..."
 
 
 personResult : PersonPreview -> Html Msg

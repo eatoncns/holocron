@@ -50,7 +50,7 @@ describe('The person page', function() {
     it('displays error message', function() {
       cy.wait('@apiError');
 
-      cy.contains('There is a disturbance in the force... SWAPI is not responding')
+      cy.contains('There is a disturbance in the force... error from SWAPI')
         .should('be.visible');
     });
   });
