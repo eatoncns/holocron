@@ -51,8 +51,8 @@ changeRouteTo route model =
         Route.Search ->
             wrapPage SearchPage SearchMsg (Search.init context)
 
-        Route.Person _ ->
-            wrapPage PersonPage PersonMsg (Person.init context)
+        Route.Person id ->
+            wrapPage PersonPage PersonMsg (Person.init context id)
 
 
 getContext : Model -> Context
@@ -88,6 +88,10 @@ update msg model =
         ( SearchMsg subMsg, SearchPage searchModel ) ->
             Search.update subMsg searchModel
                 |> wrapPage SearchPage SearchMsg
+
+        ( PersonMsg subMsg, PersonPage personModel ) ->
+            Person.update subMsg personModel
+                |> wrapPage PersonPage PersonMsg
 
         ( _, _ ) ->
             ( model, Cmd.none )
