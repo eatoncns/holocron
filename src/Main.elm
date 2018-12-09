@@ -5,6 +5,7 @@ import Browser.Navigation as Nav
 import Context exposing (Context, Images)
 import Html exposing (Html)
 import Page.NotFound as NotFound
+import Page.Person as Person
 import Page.Search as Search
 import Route exposing (Route)
 import Url
@@ -17,6 +18,7 @@ import Url
 type Model
     = NotFound Context
     | SearchPage Search.Model
+    | PersonPage Person.Model
 
 
 init : Images -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
@@ -33,6 +35,7 @@ type Msg
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url.Url
     | SearchMsg Search.Msg
+    | PersonMsg Person.Msg
 
 
 changeRouteTo : Route -> Model -> ( Model, Cmd Msg )
@@ -48,6 +51,9 @@ changeRouteTo route model =
         Route.Search ->
             wrapPage SearchPage SearchMsg (Search.init context)
 
+        Route.Person _ ->
+            wrapPage PersonPage PersonMsg (Person.init context)
+
 
 getContext : Model -> Context
 getContext model =
@@ -57,6 +63,9 @@ getContext model =
 
         SearchPage searchPage ->
             Search.getContext searchPage
+
+        PersonPage personPage ->
+            Person.getContext personPage
 
 
 wrapPage : (subModel -> Model) -> (subMsg -> Msg) -> ( subModel, Cmd subMsg ) -> ( Model, Cmd Msg )
@@ -117,6 +126,9 @@ viewPage model =
 
         SearchPage searchModel ->
             Html.map SearchMsg (Search.view searchModel)
+
+        PersonPage personModel ->
+            Html.map (\_ -> Ignored) (Person.view personModel)
 
 
 
