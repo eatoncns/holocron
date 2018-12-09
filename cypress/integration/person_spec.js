@@ -18,6 +18,24 @@ describe('The person page', function() {
     cy.contains('.attribute', 'Gender').children().last().should('have.text', 'male');
   });
 
+  describe('when id does not correspond to person', function() {
+    beforeEach(function() {
+      cy.route({
+        url: 'https://swapi.co/api/people/666/',
+        method: 'GET',
+        status: 400,
+        response: {}
+      }).as('apiNotFound');
+      cy.visit('/person/666')
+    });
+
+    it('displays message', function() {
+      cy.wait('@apiNotFound');
+
+      cy.contains('I cannot recall that person').should('be.visible');
+    });
+  });
+
   describe('when api is down', function() {
     beforeEach(function() {
       cy.route({

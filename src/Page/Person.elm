@@ -18,6 +18,7 @@ type Status
     | LoadingSlowly
     | Loaded Person
     | Error
+    | NotFound
 
 
 type alias Model =
@@ -61,6 +62,9 @@ update msg model =
                 Ok person ->
                     ( { model | status = Loaded person }, Cmd.none )
 
+                Err (Http.BadStatus 400) ->
+                    ( { model | status = NotFound }, Cmd.none )
+
                 Err _ ->
                     ( { model | status = Error }, Cmd.none )
 
@@ -85,6 +89,9 @@ view model =
 
         Error ->
             div [ class "txt--center my2" ] [ text errorMessage ]
+
+        NotFound ->
+            div [ class "txt--center my2" ] [ text notFoundMessage ]
 
         LoadingSlowly ->
             div [ class "txt--center my2" ] [ text slowLoadMessage ]
@@ -147,3 +154,8 @@ errorMessage =
 slowLoadMessage : String
 slowLoadMessage =
     "Searching my memory..."
+
+
+notFoundMessage : String
+notFoundMessage =
+    "I cannot recall that person"
