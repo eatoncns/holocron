@@ -1,5 +1,6 @@
 module People exposing (People, PersonPreview, search)
 
+import Api
 import Http
 import Json.Decode exposing (Decoder, field, list, map, map2, string)
 
@@ -16,10 +17,7 @@ type alias PersonPreview =
 
 search : String -> (Result Http.Error People -> msg) -> Cmd msg
 search input msg =
-    Http.get
-        { url = "https://swapi.co/api/people/?search=" ++ input
-        , expect = Http.expectJson msg searchResultDecoder
-        }
+    Api.get (Api.search input) msg searchResultDecoder
 
 
 searchResultDecoder : Decoder People

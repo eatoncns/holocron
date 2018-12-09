@@ -1,5 +1,6 @@
 module Person exposing (Person, fetch)
 
+import Api
 import Http
 import Json.Decode exposing (Decoder, field, int, map, map7, string)
 
@@ -17,10 +18,7 @@ type alias Person =
 
 fetch : Int -> (Result Http.Error Person -> msg) -> Cmd msg
 fetch id msg =
-    Http.get
-        { url = "https://swapi.co/api/people/" ++ String.fromInt id ++ "/"
-        , expect = Http.expectJson msg personDecoder
-        }
+    Api.get (Api.fetch id) msg personDecoder
 
 
 personDecoder : Decoder Person
