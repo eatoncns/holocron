@@ -1,7 +1,7 @@
 module People exposing (People, PersonPreview, search)
 
 import Http
-import Json.Decode exposing (Decoder, field, list, map2, string)
+import Json.Decode exposing (Decoder, field, list, map, map2, string)
 
 
 type alias People =
@@ -39,7 +39,26 @@ personDecoder =
 
 urlDecoder : Decoder String
 urlDecoder =
-    field "url" string
+    map convertToLocalUrl (field "url" string)
+
+
+convertToLocalUrl : String -> String
+convertToLocalUrl url =
+    "/person/" ++ extractId url
+
+
+
+-- https://swapi.co/api/people/4/ -> 4
+
+
+extractId : String -> String
+extractId =
+    Maybe.withDefault "" << lastElem << String.split "/" << String.dropRight 1
+
+
+lastElem : List a -> Maybe a
+lastElem =
+    List.foldl (Just >> always) Nothing
 
 
 nameDecoder : Decoder String

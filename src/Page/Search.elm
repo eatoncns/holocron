@@ -207,6 +207,8 @@ slowLoadMessage =
 
 personResult : PersonPreview -> Html Msg
 personResult person =
-    div [ class "card txt--center" ]
-        [ p [] [ text person.name ]
+    a [ href person.url ]
+        [ div [ class "card txt--center" ]
+            [ p [] [ text person.name ]
+            ]
         ]

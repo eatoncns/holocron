@@ -24,8 +24,11 @@ describe('The search page', function() {
     cy.wait('@searchDarth');
 
     cy.contains('I know of 2...').should('be.visible');
-    cy.contains('Darth Vader').should('be.visible');
-    cy.contains('Darth Maul').should('be.visible');
+    cy.contains('.card', 'Darth Vader').should('be.visible');
+    cy.contains('.card', 'Darth Maul').should('be.visible');
+
+    cy.contains('.card', 'Darth Vader').click();
+    cy.url().should('include', '/person/4');
   });
 
   it('allows search to be triggered by pressing enter', () => {
