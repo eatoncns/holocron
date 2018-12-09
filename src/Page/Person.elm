@@ -2,6 +2,7 @@ module Page.Person exposing (Model, Msg, getContext, init, update, view)
 
 import Context exposing (Context)
 import Html exposing (..)
+import Html.Attributes exposing (class)
 import Http
 import Person exposing (Person)
 
@@ -60,4 +61,50 @@ view model =
             text ""
 
         Loaded person ->
-            p [] [ text person.name ]
+            div [ class "measure bg--off-white" ]
+                [ h1 [] [ text person.name ]
+                , div [ class "grd py1" ]
+                    [ attributeRow
+                        [ { label = "Height", value = formatHeight person.height }
+                        , { label = "Mass", value = formatMass person.mass }
+                        , { label = "Hair colour", value = person.hairColour }
+                        ]
+                    , attributeRow
+                        [ { label = "Eye colour", value = person.eyeColour }
+                        , { label = "Birth year", value = person.birthYear }
+                        , { label = "Gender", value = person.gender }
+                        ]
+                    ]
+                ]
+
+
+formatHeight : String -> String
+formatHeight =
+    String.toFloat
+        >> Maybe.withDefault 0
+        >> (\x -> x / 100)
+        >> String.fromFloat
+        >> (\x -> x ++ " m")
+
+
+formatMass : String -> String
+formatMass massInKg =
+    massInKg ++ " kg"
+
+
+type alias Attribute =
+    { label : String, value : String }
+
+
+attributeRow : List Attribute -> Html msg
+attributeRow attributes =
+    div [ class "grd-row my2" ]
+        (List.map attribute attributes)
+
+
+attribute : Attribute -> Html msg
+attribute a =
+    div [ class "grd-row-col-2-6 attribute" ]
+        [ div [ class "muted" ] [ text a.label ]
+        , div [] [ text a.value ]
+        ]
