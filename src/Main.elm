@@ -132,7 +132,7 @@ viewPage model =
             Html.map SearchMsg (Search.view searchModel)
 
         PersonPage personModel ->
-            Html.map (\_ -> Ignored) (Person.view personModel)
+            Html.map PersonMsg (Person.view personModel)
 
 
 
