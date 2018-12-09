@@ -1,10 +1,13 @@
 Star Wars Holocron
 ==================
 
-A simple frontend for the [SWAPI (the Star Wars API)](https://swapi.co/)
+A simple frontend for the [SWAPI (the Star Wars API)](https://swapi.co/).
 
 The app can be used to search for characters in the Star Wars universe and find
 out information about them.
+
+A deployed version can be found
+[here](https://dazzling-torvalds-23e478.netlify.com).
 
 The app is written in [Elm](https://elm-lang.org/), styled with use of
 [Furtive](http://furtive.co/), tested using
@@ -25,6 +28,9 @@ yarn run dev            # run app locally (default localhost:1234)
 yarn run cypress:open   # open cypress test GUI
 yarn run cypress        # run cypress tests from command line
 ```
+
+N.B. cypress tests are run against locally running app so will need yarn run
+dev to have been run.
 
 ## Goals
 
@@ -60,5 +66,6 @@ cypress to address this.
 
 Some considerations going forward if this were a production project:
 
+- Accessibility
 - [Localisation](https://developer.mozilla.org/en-US/docs/Mozilla/Localization/Web_Localizability/Creating_localizable_web_applications)
 - Security concerns e.g. Content Security Policy, headers
