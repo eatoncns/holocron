@@ -5,6 +5,8 @@ import Html exposing (..)
 import Html.Attributes exposing (class)
 import Http
 import Person exposing (Person)
+import Process
+import Task exposing (Task)
 
 
 
@@ -13,6 +15,7 @@ import Person exposing (Person)
 
 type Status
     = Loading
+    | LoadingSlowly
     | Loaded Person
     | Error
 
@@ -23,7 +26,12 @@ type alias Model =
 
 init : Context -> Int -> ( Model, Cmd Msg )
 init context id =
-    ( { context = context, status = Loading }, Person.fetch id LoadedResult )
+    ( { context = context, status = Loading }
+    , Cmd.batch
+        [ Person.fetch id LoadedResult
+        , Task.perform (\_ -> PassedSlowLoadingThreshold) slowLoadThreshold
+        ]
+    )
 
 
 getContext : Model -> Context
@@ -36,7 +44,13 @@ getContext model =
 
 
 type Msg
-    = LoadedResult (Result Http.Error Person)
+    = PassedSlowLoadingThreshold
+    | LoadedResult (Result Http.Error Person)
+
+
+slowLoadThreshold : Task x ()
+slowLoadThreshold =
+    Process.sleep 500
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -49,6 +63,14 @@ update msg model =
 
                 Err _ ->
                     ( { model | status = Error }, Cmd.none )
+
+        PassedSlowLoadingThreshold ->
+            case model.status of
+                Loading ->
+                    ( { model | status = LoadingSlowly }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
 
 
 
@@ -63,6 +85,9 @@ view model =
 
         Error ->
             div [ class "txt--center my2" ] [ text errorMessage ]
+
+        LoadingSlowly ->
+            div [ class "txt--center my2" ] [ text slowLoadMessage ]
 
         Loaded person ->
             div [ class "measure bg--off-white" ]
@@ -117,3 +142,8 @@ attribute a =
 errorMessage : String
 errorMessage =
     "There is a disturbance in the force... SWAPI is not responding"
+
+
+slowLoadMessage : String
+slowLoadMessage =
+    "Searching my memory..."

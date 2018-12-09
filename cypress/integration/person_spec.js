@@ -37,4 +37,25 @@ describe('The person page', function() {
     });
   });
 
+  describe('when network is slow', function() {
+    beforeEach(function() {
+      cy.route({
+        delay: 2000,
+        url:'https://swapi.co/api/people/7/',
+        method: 'GET',
+        status: 200,
+        response: 'fixture:darth_vader.json',
+      }).as('slowApi');
+      cy.visit('/person/7');
+    });
+
+    it('displays loading message until loaded', () => {
+      cy.contains('Searching my memory...').should('be.visible');
+
+      cy.wait('@slowApi');
+
+      cy.contains('Searching my memory...').should('not.be.visible');
+    });
+  });
+
 });

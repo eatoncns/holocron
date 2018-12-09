@@ -79,11 +79,8 @@ update msg model =
         Search ->
             ( { model | search = Loading }
             , Cmd.batch
-                [ People.search
-                    model.searchText
-                    SearchResult
-                , Task.perform (\_ -> PassedSlowLoadingThreshold)
-                    slowLoadThreshold
+                [ People.search model.searchText SearchResult
+                , Task.perform (\_ -> PassedSlowLoadingThreshold) slowLoadThreshold
                 ]
             )
 
