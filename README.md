@@ -3,8 +3,11 @@ Star Wars Holocron
 
 A simple frontend for the [SWAPI (the Star Wars API)](https://swapi.co/)
 
+The app can be used to search for characters in the Star Wars universe and find
+out information about them.
+
 The app is written in [Elm](https://elm-lang.org/), styled with use of
-[Furtive] (http://furtive.co/, )tested using
+[Furtive](http://furtive.co/), tested using
 [cypress](https://www.cypress.io/) and bundled using
 [parceljs](https://parceljs.org/).
 
@@ -28,17 +31,29 @@ yarn run cypress        # run cypress tests from command line
 Given the relatively limited time I am able to spend on this app I am
 prioritising  what are in my opinion good practices over large feature set.
 
+##### Error handling
+
+The app should handle:
+
+- Error statuses from api
+- Slow load of api / slower internet connections
+
 ##### Testing strategy
 
 I am from a predominantly backend background with a strong emphasis on TDD.
-Having recently worked on a number of react/redux frontend apps I have seen
-a tendency to over unit test, in part because the frameworks are so interwoven
-with the code being written.
+I wanted to experiment with Elm/cypress combination as it seems to tackle some of the
+problems I see on other javascript based stacks.
 
-I am interested in the approach taken by cypress, writing tests
+In particular I have seen a lot of low value "change detector" implementation tests that
+I think come from uncertainty about javascript features. Have we destructured
+the input correctly? Are all the keys correct in the output object? I am hoping
+the type system in Elm moves these kind of tests to the compiler, allowing
+testing to be more about features of the app.
+
+This fits nicely with the approach taken by cypress, writing tests
 describing the interaction a user has rather than the underlying
 implementation. With selenium/webdriver I have seen this fall down due to the
-slow speed and flakiness of the tests but there are a number of features in
+slow speed and flakiness of the tests but it looks like there are a number of features in
 cypress to address this.
 
 ## Enhancements
@@ -46,3 +61,4 @@ cypress to address this.
 Some considerations going forward if this were a production project:
 
 - [Localisation](https://developer.mozilla.org/en-US/docs/Mozilla/Localization/Web_Localizability/Creating_localizable_web_applications)
+- Security concerns e.g. Content Security Policy, headers
