@@ -47,7 +47,7 @@ describe('The person page', function() {
       cy.route({
         url: 'https://swapi.co/api/people/666/',
         method: 'GET',
-        status: 400,
+        status: 404,
         response: {}
       }).as('apiNotFound');
       cy.visit('/person/666')

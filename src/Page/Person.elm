@@ -90,7 +90,7 @@ update msg model =
                 Ok person ->
                     ( { model | personStatus = Loaded person }, Cmd.none )
 
-                Err (Http.BadStatus 400) ->
+                Err (Http.BadStatus 404) ->
                     ( { model | personStatus = NotFound }, Cmd.none )
 
                 Err _ ->
