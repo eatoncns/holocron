@@ -268,7 +268,10 @@ starshipCardContent model =
         Expanded ->
             case model.starshipStatus of
                 Requested (Loaded starship) ->
-                    [ p [] [ text starship.name ] ]
+                    [ p [] [ text starship.name ]
+                    , p [] [ text starship.model ]
+                    , p [] [ text starship.class ]
+                    ]
 
                 Requested LoadingSlowly ->
                     [ div [ class "txt--center my2" ] [ text Message.slowLoad ] ]

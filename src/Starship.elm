@@ -2,11 +2,11 @@ module Starship exposing (Starship, fetch)
 
 import Api
 import Http
-import Json.Decode exposing (Decoder, field, map, string)
+import Json.Decode exposing (Decoder, field, map3, string)
 
 
 type alias Starship =
-    { name : String }
+    { name : String, model : String, class : String }
 
 
 fetch : Int -> (Result Http.Error Starship -> msg) -> Cmd msg
@@ -16,4 +16,7 @@ fetch id msg =
 
 starshipDecoder : Decoder Starship
 starshipDecoder =
-    map Starship (field "name" string)
+    map3 Starship
+        (field "name" string)
+        (field "model" string)
+        (field "starship_class" string)

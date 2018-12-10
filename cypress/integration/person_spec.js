@@ -33,6 +33,8 @@ describe('The person page', function() {
     it('expands to display primary starship information', function() {
       cy.contains('.expander', 'Starship').children().last().should('have.text', '-');
       cy.contains('.card', 'TIE Advanced').should('be.visible');
+      cy.contains('.card', 'Twin Ion Engine').should('be.visible');
+      cy.contains('.card', 'Starfighter').should('be.visible');
     });
 
     it('collapses card again when expander clicked', function() {
