@@ -79,6 +79,21 @@ describe('The person page', function() {
     });
   });
 
+  describe('when api returns unexpected json', function() {
+    beforeEach(function() {
+    cy.route('https://swapi.co/api/people/123/', 'fixture:malformed_response.json')
+      .as('fetchMalformedResponse');
+      cy.visit('/person/123')
+    });
+
+    it('displays error message', function() {
+      cy.wait('@fetchMalformedResponse');
+
+      cy.contains('There is a disturbance in the force... error from SWAPI')
+        .should('be.visible');
+    });
+  });
+
   describe('when network is slow', function() {
     beforeEach(function() {
       cy.route({
