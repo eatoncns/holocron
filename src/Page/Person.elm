@@ -55,7 +55,7 @@ init context id =
       }
     , Cmd.batch
         [ Person.fetch id LoadedPersonResult
-        , Task.perform (\_ -> PassedSlowLoadingThreshold) slowLoadThreshold
+        , Task.perform (\_ -> PassedSlowLoadingThresholdPerson) slowLoadThreshold
         ]
     )
 
@@ -70,9 +70,10 @@ getContext model =
 
 
 type Msg
-    = PassedSlowLoadingThreshold
+    = PassedSlowLoadingThresholdPerson
     | LoadedPersonResult (Result Http.Error Person)
     | ToggleStarship
+    | PassedSlowLoadingThresholdStarship
     | LoadedStarshipResult (Result Http.Error Starship)
 
 
@@ -95,7 +96,7 @@ update msg model =
                 Err _ ->
                     ( { model | personStatus = Error }, Cmd.none )
 
-        PassedSlowLoadingThreshold ->
+        PassedSlowLoadingThresholdPerson ->
             case model.personStatus of
                 Loading ->
                     ( { model | personStatus = LoadingSlowly }, Cmd.none )
@@ -108,9 +109,8 @@ update msg model =
                 Loaded person ->
                     case ( model.starshipCard, model.starshipStatus ) of
                         ( Collapsed, NotRequested ) ->
-                            ( { model | starshipCard = Expanded }
-                            , Starship.fetch (Maybe.withDefault 0 person.starshipId)
-                                LoadedStarshipResult
+                            ( { model | starshipStatus = Requested Loading, starshipCard = Expanded }
+                            , loadStarship person.starshipId
                             )
 
                         ( Collapsed, _ ) ->
@@ -122,13 +122,29 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
+        PassedSlowLoadingThresholdStarship ->
+            case model.starshipStatus of
+                Requested Loading ->
+                    ( { model | starshipStatus = Requested LoadingSlowly }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
         LoadedStarshipResult result ->
             case result of
                 Ok starship ->
                     ( { model | starshipStatus = Requested (Loaded starship) }, Cmd.none )
 
                 Err _ ->
-                    ( model, Cmd.none )
+                    ( { model | starshipStatus = Requested Error }, Cmd.none )
+
+
+loadStarship : Maybe Int -> Cmd Msg
+loadStarship id =
+    Cmd.batch
+        [ Starship.fetch (Maybe.withDefault 0 id) LoadedStarshipResult
+        , Task.perform (\_ -> PassedSlowLoadingThresholdStarship) slowLoadThreshold
+        ]
 
 
 
@@ -153,7 +169,7 @@ view model =
         Loaded person ->
             div [ class "measure" ]
                 [ personDetails person
-                , starshipCard model
+                , starshipCard model person
                 ]
 
 
@@ -208,13 +224,18 @@ attribute a =
         ]
 
 
-starshipCard : Model -> Html Msg
-starshipCard model =
-    div
-        [ class "card my2" ]
-        ([ starshipCardHeader model ]
-            ++ starshipCardContent model
-        )
+starshipCard : Model -> Person -> Html Msg
+starshipCard model person =
+    case person.starshipId of
+        Nothing ->
+            text ""
+
+        Just _ ->
+            div
+                [ class "card my2" ]
+                ([ starshipCardHeader model ]
+                    ++ starshipCardContent model
+                )
 
 
 starshipCardHeader : Model -> Html Msg
@@ -248,6 +269,12 @@ starshipCardContent model =
             case model.starshipStatus of
                 Requested (Loaded starship) ->
                     [ p [] [ text starship.name ] ]
+
+                Requested LoadingSlowly ->
+                    [ div [ class "txt--center my2" ] [ text Message.slowLoad ] ]
+
+                Requested Error ->
+                    [ div [ class "txt--center my2" ] [ text Message.error ] ]
 
                 Requested _ ->
                     []
