@@ -2,7 +2,7 @@ module Person exposing (Person, fetch)
 
 import Api
 import Http
-import Json.Decode exposing (Decoder, field, int, map, map7, string)
+import Json.Decode exposing (Decoder, field, int, list, map, map8, string)
 
 
 type alias Person =
@@ -13,17 +13,18 @@ type alias Person =
     , eyeColour : String
     , birthYear : String
     , gender : String
+    , starshipId : Maybe Int
     }
 
 
 fetch : Int -> (Result Http.Error Person -> msg) -> Cmd msg
 fetch id msg =
-    Api.get (Api.fetch id) msg personDecoder
+    Api.get (Api.fetchPerson id) msg personDecoder
 
 
 personDecoder : Decoder Person
 personDecoder =
-    map7 Person
+    map8 Person
         nameDecoder
         heightDecoder
         massDecoder
@@ -31,6 +32,7 @@ personDecoder =
         eyeDecoder
         birthYearDecoder
         genderDecoder
+        starshipIdDecoder
 
 
 nameDecoder : Decoder String
@@ -66,3 +68,28 @@ birthYearDecoder =
 genderDecoder : Decoder String
 genderDecoder =
     field "gender" string
+
+
+starshipIdDecoder : Decoder (Maybe Int)
+starshipIdDecoder =
+    map extractFirstId (field "starships" (list string))
+
+
+extractFirstId : List String -> Maybe Int
+extractFirstId urls =
+    case List.head urls of
+        Nothing ->
+            Nothing
+
+        Just url ->
+            extractId url
+
+
+extractId : String -> Maybe Int
+extractId =
+    String.toInt << Maybe.withDefault "" << lastElem << String.split "/" << String.dropRight 1
+
+
+lastElem : List a -> Maybe a
+lastElem =
+    List.foldl (Just >> always) Nothing

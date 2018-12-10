@@ -1,4 +1,4 @@
-module Api exposing (fetch, get, search)
+module Api exposing (fetchPerson, fetchStarship, get, search)
 
 import Http
 import Json.Decode exposing (Decoder)
@@ -6,7 +6,8 @@ import Json.Decode exposing (Decoder)
 
 type Endpoint
     = Search String
-    | Fetch Int
+    | FetchPerson Int
+    | FetchStarship Int
 
 
 get : Endpoint -> (Result Http.Error a -> msg) -> Decoder a -> Cmd msg
@@ -25,8 +26,11 @@ endpointUrl endpoint =
                 Search input ->
                     "/people/?search=" ++ input
 
-                Fetch id ->
+                FetchPerson id ->
                     "/people/" ++ String.fromInt id ++ "/"
+
+                FetchStarship id ->
+                    "/starships/" ++ String.fromInt id ++ "/"
     in
     "https://swapi.co/api" ++ path
 
@@ -36,6 +40,11 @@ search input =
     Search input
 
 
-fetch : Int -> Endpoint
-fetch id =
-    Fetch id
+fetchPerson : Int -> Endpoint
+fetchPerson id =
+    FetchPerson id
+
+
+fetchStarship : Int -> Endpoint
+fetchStarship id =
+    FetchStarship id
